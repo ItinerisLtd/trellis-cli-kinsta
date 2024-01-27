@@ -6,7 +6,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
+	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/mitchellh/cli"
 	tCmd "github.com/roots/trellis-cli/cmd"
 )
@@ -97,7 +99,19 @@ func ListSites(ui cli.Ui, accessToken string, company string) {
 	var sl SitesList
 	Request(ui, accessToken, fmt.Sprintf("sites/?company=%s", company), &sl)
 
+	var trs []table.Row
 	for _, v := range sl.Company.Sites {
-		fmt.Println(v)
+		var lbls []string
+		for _, lbl := range v.SiteLabels {
+			lbls = append(lbls, lbl.Name)
+		}
+		tr := table.Row{v.Id, v.DisplayName, v.Name, v.Status, strings.Join(lbls, ", ")}
+		trs = append(trs, tr)
 	}
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "NAME", "DISPLAY NAME", "STATUS", "SITE LABELS"})
+	t.AppendRows(trs)
+	t.Render()
 }
