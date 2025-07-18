@@ -1,6 +1,7 @@
 module github.com/ItinerisLtd/trellis-cli-kinsta
 
-go 1.21.6
+go 1.23.0
+
 toolchain go1.24.1
 
 require (
@@ -19,7 +20,6 @@ require (
 	github.com/chzyer/readline v1.5.0 // indirect
 	github.com/digitalocean/godo v1.83.0 // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.5.0 // indirect
@@ -48,11 +48,9 @@ require (
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
-	golang.org/x/oauth2 v0.10.0 // indirect
+	golang.org/x/oauth2 v0.27.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
