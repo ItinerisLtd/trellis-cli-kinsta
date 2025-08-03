@@ -9,47 +9,50 @@ import (
 	"github.com/roots/trellis-cli/trellis"
 )
 
+type SiteListCommand struct {
+	ui      cli.Ui
+	Trellis *trellis.Trellis
+	flags   *flag.FlagSet
+	apiKey  string
+	company string
+}
+
+func (s SiteListCommand) UI() cli.Ui          { return s.ui }
+func (s SiteListCommand) Flags() flag.FlagSet { return *s.flags }
+
+func (c *SiteListCommand) init() {
+	c.flags = flag.NewFlagSet("", flag.ContinueOnError)
+	c.flags.Usage = func() { c.ui.Info(c.Help()) }
+	c.flags.StringVar(&c.apiKey, "api-key", "", "The API key used to query Kinsta APIs.")
+	c.flags.StringVar(&c.company, "company", "", "The company ID to query.")
+}
+
 func NewSiteListCommand(ui cli.Ui, trellis *trellis.Trellis) *SiteListCommand {
-	c := &SiteListCommand{UI: ui, Trellis: trellis}
+	c := &SiteListCommand{ui: ui, Trellis: trellis}
 	c.init()
 	return c
 }
 
-type SiteListCommand struct {
-	UI      cli.Ui
-	Trellis *trellis.Trellis
-	flags   *flag.FlagSet
-	company string
-}
-
-func (c *SiteListCommand) init() {
-	c.flags = flag.NewFlagSet("", flag.ContinueOnError)
-	c.flags.Usage = func() { c.UI.Info(c.Help()) }
-	c.flags.StringVar(&c.company, "company", "", "The company ID to query.")
-}
-
 func (c *SiteListCommand) Run(args []string) int {
-	if err := c.Trellis.LoadProject(); err != nil {
-		c.UI.Error(err.Error())
-		return 1
-	}
-
-	c.Trellis.CheckVirtualenv(c.UI)
-
 	if err := c.flags.Parse(args); err != nil {
 		return 1
 	}
 
 	args = c.flags.Args()
 
-	accessToken, err := kinsta.GetAccessToken(c.UI)
+	apiKey, err := kinsta.GetFlagValue(c, "api-key")
 	if err != nil {
-		c.UI.Error("Error: DigitalOcean access token is required.")
+		c.ui.Error(err.Error())
 		return 1
 	}
-	kinsta.ListSites(c.UI, accessToken, c.company)
 
-	return 0
+	company, err := kinsta.GetFlagValue(c, "company")
+	if err != nil {
+		c.ui.Error(err.Error())
+		return 1
+	}
+
+	return kinsta.ListSites(c.ui, apiKey, company)
 }
 
 func (c *SiteListCommand) Synopsis() string {
