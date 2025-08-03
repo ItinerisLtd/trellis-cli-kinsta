@@ -5,16 +5,16 @@ go 1.23.0
 toolchain go1.24.1
 
 require (
-	github.com/fatih/color v1.15.0
+	github.com/fatih/color v1.16.0
+	github.com/hashicorp/cli v1.1.7
 	github.com/jedib0t/go-pretty/v6 v6.5.3
-	github.com/mitchellh/cli v1.1.5
 	github.com/roots/trellis-cli v1.11.1
 )
 
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.1.1 // indirect
-	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
+	github.com/Masterminds/semver/v3 v3.2.0 // indirect
+	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/chzyer/readline v1.5.0 // indirect
@@ -25,14 +25,15 @@ require (
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/huandu/xstrings v1.3.2 // indirect
+	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2 // indirect
 	github.com/mholt/archiver v3.1.1+incompatible // indirect
+	github.com/mitchellh/cli v1.1.5 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect

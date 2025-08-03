@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/ItinerisLtd/trellis-cli-kinsta/kinsta"
-	"github.com/mitchellh/cli"
+	"github.com/hashicorp/cli"
 	"github.com/roots/trellis-cli/trellis"
 )
 
