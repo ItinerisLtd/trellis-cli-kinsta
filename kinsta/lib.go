@@ -2,6 +2,7 @@ package kinsta
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,22 +14,38 @@ import (
 	tCmd "github.com/roots/trellis-cli/cmd"
 )
 
-const accessTokenEnvVar = "KINSTA_API_ACCESS_TOKEN"
 const apiUrl = "https://api.kinsta.com/v2"
 
-func GetAccessToken(ui cli.Ui) (accessToken string, err error) {
-	accessToken = os.Getenv(accessTokenEnvVar)
+type Command interface {
+	UI() cli.Ui
+	Flags() flag.FlagSet
+}
 
-	if accessToken == "" {
-		ui.Info(fmt.Sprintf("%s environment variable not set.", accessTokenEnvVar))
-		accessToken, err = ui.Ask("Enter Access token:")
+func GetFlagValue(c Command, varName string) (value string, err error) {
+	ui := c.UI()
+	flags := c.Flags()
 
-		if err != nil {
-			return "", err
-		}
+	value = flags.Lookup(varName).Value.String()
+	if value != "" {
+		return value, nil
 	}
 
-	return accessToken, nil
+	envVarName := "KINSTA_" + strings.ToUpper(strings.ReplaceAll(varName, "-", "_"))
+	value = os.Getenv(envVarName)
+	if value != "" {
+		return value, nil
+	}
+
+	value, err = ui.Ask(fmt.Sprintf("Enter %s:", varName))
+	if value == "" {
+		return "", fmt.Errorf("Error: %s is required.", varName)
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	return value, nil
 }
 
 type SiteLabel struct {
@@ -49,29 +66,32 @@ type Company struct {
 }
 
 type SitesList struct {
+	Error   string  `json:"error"`
 	Company Company `json:"company"`
 }
 
-func Request(ui cli.Ui, accessToken string, url string, target interface{}) {
+func Request(ui cli.Ui, apiKey string, url string, target interface{}) (errCode int) {
 	spinner := tCmd.NewSpinner(
 		tCmd.SpinnerCfg{
 			FailMessage: "Failed",
 		},
 	)
+
 	spinner.Start()
+
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", apiUrl, url), nil)
 	if err != nil {
+		spinner.StopFailMessage(err.Error())
 		spinner.StopFail()
-		ui.Error(err.Error())
-		return
+		return 1
 	}
 
-	req.Header.Add("Authorization", "Bearer "+accessToken)
+	req.Header.Add("Authorization", "Bearer "+apiKey)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
+		spinner.StopFailMessage(err.Error())
 		spinner.StopFail()
-		ui.Error(err.Error())
-		return
+		return 1
 	}
 
 	if res.Body != nil {
@@ -80,24 +100,48 @@ func Request(ui cli.Ui, accessToken string, url string, target interface{}) {
 
 	body, readErr := io.ReadAll(res.Body)
 	if readErr != nil {
+		spinner.StopFailMessage(readErr.Error())
 		spinner.StopFail()
-		ui.Error(readErr.Error())
-		return
+		return 1
+	}
+
+	// Unmarshal into a map to check for error property before unmarshalling to target
+	var raw map[string]interface{}
+	if err := json.Unmarshal(body, &raw); err != nil {
+		spinner.StopFailMessage(err.Error())
+		spinner.StopFail()
+		return 1
+	}
+
+	if errMsg, ok := raw["message"].(string); res.StatusCode != http.StatusOK && ok && errMsg != "" {
+		spinner.StopFailMessage(errMsg)
+		spinner.StopFail()
+		return 1
+	}
+
+	if errMsg, ok := raw["error"].(string); ok && errMsg != "" {
+		spinner.StopFailMessage(errMsg)
+		spinner.StopFail()
+		return 1
 	}
 
 	jsonErr := json.Unmarshal(body, &target)
 	if jsonErr != nil {
+		spinner.StopFailMessage(jsonErr.Error())
 		spinner.StopFail()
-		ui.Error(jsonErr.Error())
-		return
+		return 1
 	}
 
 	spinner.Stop()
+
+	return 0
 }
 
-func ListSites(ui cli.Ui, accessToken string, company string) {
+func ListSites(ui cli.Ui, apiKey string, company string) int {
 	var sl SitesList
-	Request(ui, accessToken, fmt.Sprintf("sites/?company=%s", company), &sl)
+	if err := Request(ui, apiKey, fmt.Sprintf("sites/?company=%s", company), &sl); err != 0 {
+		return 1
+	}
 
 	var trs []table.Row
 	for _, v := range sl.Company.Sites {
@@ -114,4 +158,6 @@ func ListSites(ui cli.Ui, accessToken string, company string) {
 	t.AppendHeader(table.Row{"ID", "NAME", "DISPLAY NAME", "STATUS", "SITE LABELS"})
 	t.AppendRows(trs)
 	t.Render()
+
+	return 0
 }
