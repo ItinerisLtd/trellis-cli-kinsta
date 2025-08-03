@@ -56,7 +56,7 @@ func (c *SiteListCommand) Run(args []string) int {
 }
 
 func (c *SiteListCommand) Synopsis() string {
-	return "help me"
+	return "List all sites associated to the given company ID"
 }
 
 func (c *SiteListCommand) Help() string {
@@ -65,13 +65,11 @@ Usage: trellis kinsta site list [options]
 
 List all sites associated to the given company ID:
 
-  $ trellis kinsta site list --company=123
-
-Arguments:
-  ENVIRONMENT Name of environment (ie: production)
+  $ trellis kinsta site list --company=123 --api-key=123
 
 Options:
       --company The company ID to query
+      --api-key The API key used to query Kinsta APIs
   -h, --help    show this help
 `
 
