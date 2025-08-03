@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/fatih/color"
-	"github.com/mitchellh/cli"
+	"github.com/hashicorp/cli"
 	trellisCmd "github.com/roots/trellis-cli/cmd"
 	"github.com/roots/trellis-cli/trellis"
 	"os"

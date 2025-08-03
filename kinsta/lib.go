@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/mitchellh/cli"
+	"github.com/hashicorp/cli"
 	tCmd "github.com/roots/trellis-cli/cmd"
 )
 
